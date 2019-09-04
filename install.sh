@@ -201,7 +201,33 @@ success "Installed system updates!"
 
 heading "Installing ARK Core..."
 
-yarn global add @arkecosystem/core
+shopt -s expand_aliases
+alias ark="/home/bridgechain/core-bridgechain/packages/core/bin/run"
+echo 'alias testing="/home/bridgechain/core-bridgechain/packages/core/bin/run"' >> ~/.bashrc
+
+rm -rf "/home/bridgechain/core-bridgechain"
+git clone "git@github.com:munich/ssh_five_core.git" "/home/bridgechain/core-bridgechain" || FAILED="Y"
+if [ "$FAILED" == "Y" ]; then
+    echo "Failed to fetch core repo with origin 'git@github.com:munich/ssh_five_core.git'"
+
+    exit 1
+fi
+
+cd "/home/bridgechain/core-bridgechain"
+HAS_REMOTE=$(git branch -a | fgrep -o "remotes/origin/chore/bridgechain-changes")
+if [ ! -z "$HAS_REMOTE" ]; then
+    git checkout chore/bridgechain-changes
+fi
+
+YARN_SETUP="N"
+while [ "$YARN_SETUP" == "N" ]; do
+  YARN_SETUP="Y"
+  yarn setup || YARN_SETUP="N"
+done
+rm -rf "$HOME/.config/@testing"
+rm -rf "$HOME/.config/@testing"
+rm -rf "$HOME/.config/testing-core"
+
 echo 'export PATH=$(yarn global bin):$PATH' >> ~/.bashrc
 export PATH=$(yarn global bin):$PATH
 ark config:publish
